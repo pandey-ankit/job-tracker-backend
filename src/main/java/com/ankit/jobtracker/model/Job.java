@@ -5,6 +5,9 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 @Entity
 @Table(name = "jobs")
 @Data
@@ -17,11 +20,15 @@ public class Job {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Company is required")
     private String company;
-
+    
+    @NotBlank(message = "Role is required")
     private String role;
 
+    @NotBlank(message = "Status is required")
     private String status;   // APPLIED, INTERVIEW, OFFER, REJECTED
 
+    @NotNull(message = "Applied Date is required")
     private LocalDate appliedDate;
 }
