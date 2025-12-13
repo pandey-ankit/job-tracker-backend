@@ -5,6 +5,12 @@ import lombok.*;
 
 import java.time.LocalDate;
 
+import com.ankit.jobtracker.enums.JobStatus;
+
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -26,8 +32,10 @@ public class Job {
     @NotBlank(message = "Role is required")
     private String role;
 
-    @NotBlank(message = "Status is required")
-    private String status;   // APPLIED, INTERVIEW, OFFER, REJECTED
+    @NotNull(message = "Status is required")
+    @Enumerated(EnumType.STRING)
+    private JobStatus status;
+   // APPLIED, INTERVIEW, OFFER, REJECTED
 
     @NotNull(message = "Applied Date is required")
     private LocalDate appliedDate;

@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import com.ankit.jobtracker.dto.JobRequestDTO;
+import com.ankit.jobtracker.dto.JobResponseDTO;
+
+
 @Service
 public class JobService {
 
@@ -16,9 +20,20 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
-    public Job createJob(Job job) {
-        return jobRepository.save(job);
+    public JobResponseDTO createJob(JobRequestDTO dto) {
+
+    Job job = Job.builder()
+            .company(dto.getCompany())
+            .role(dto.getRole())
+            .status(dto.getStatus())
+            .appliedDate(dto.getAppliedDate())
+            .build();
+
+    Job savedJob = jobRepository.save(job);
+
+    return mapToResponse(savedJob);
     }
+
 
     public Job updateJob(Long id, Job updatedJob) {
     Job existingJob = jobRepository.findById(id)
@@ -40,9 +55,24 @@ public class JobService {
     }
 
 
-    public List<Job> getAllJobs() {
-        return jobRepository.findAll();
+    public List<JobResponseDTO> getAllJobs() {
+    return jobRepository.findAll()
+            .stream()
+            .map(this::mapToResponse)
+            .toList();
     }
+
+    private JobResponseDTO mapToResponse(Job job) {
+    return new JobResponseDTO(
+            job.getId(),
+            job.getCompany(),
+            job.getRole(),
+            job.getStatus(),
+            job.getAppliedDate()
+    );
+    }
+
+
 
     public Job getJobById(Long id) {
     return jobRepository.findById(id)

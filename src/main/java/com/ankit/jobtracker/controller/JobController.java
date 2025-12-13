@@ -1,5 +1,8 @@
 package com.ankit.jobtracker.controller;
 
+import com.ankit.jobtracker.dto.ApiResponse;
+import com.ankit.jobtracker.dto.JobRequestDTO;
+import com.ankit.jobtracker.dto.JobResponseDTO;
 import com.ankit.jobtracker.model.Job;
 import com.ankit.jobtracker.service.JobService;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +21,15 @@ public class JobController {
     }
 
     @GetMapping
-    public List<Job> getAllJobs() {
-        return jobService.getAllJobs();
+    public ApiResponse<List<JobResponseDTO>> getAllJobs() {
+
+    return new ApiResponse<>(
+            true,
+            "Jobs fetched successfully",
+            jobService.getAllJobs()
+    );
     }
+
 
     @GetMapping("/{id}")
     public Job getJobById(@PathVariable Long id) {
@@ -33,10 +42,18 @@ public class JobController {
     jobService.deleteJob(id);
     }
 
+
     @PostMapping
-    public Job createJob(@Valid @RequestBody Job job) {
-    return jobService.createJob(job);
+    public ApiResponse<JobResponseDTO> createJob(
+        @Valid @RequestBody JobRequestDTO dto) {
+
+    return new ApiResponse<>(
+            true,
+            "Job created successfully",
+            jobService.createJob(dto)
+    );
     }
+
 
     @PutMapping("/{id}")
     public Job updateJob(@PathVariable Long id, @Valid @RequestBody Job job) {
