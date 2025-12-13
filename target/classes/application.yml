@@ -14,3 +14,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+
+  web:
+    resources:
+      add-mappings: true
