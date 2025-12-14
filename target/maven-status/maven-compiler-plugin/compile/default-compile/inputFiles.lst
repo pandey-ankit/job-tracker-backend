@@ -7,6 +7,7 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/exception/ResourceNotFoundException.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/HealthController.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/JobController.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/PagedResponse.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/service/JobService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/model/Job.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/ApiResponse.java

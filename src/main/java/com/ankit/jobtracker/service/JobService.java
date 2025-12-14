@@ -9,6 +9,14 @@ import java.util.List;
 
 import com.ankit.jobtracker.dto.JobRequestDTO;
 import com.ankit.jobtracker.dto.JobResponseDTO;
+import com.ankit.jobtracker.dto.PagedResponse;
+import com.ankit.jobtracker.enums.JobStatus;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 
 
 @Service
@@ -79,5 +87,50 @@ public class JobService {
             .orElseThrow(() ->
                 new ResourceNotFoundException("Job not found with id " + id));
     }
+
+    public PagedResponse<JobResponseDTO> getJobs(
+        int page,
+        int size,
+        String sortBy,
+        String direction,
+        JobStatus status,
+        String company
+    ) {
+
+    Sort sort = direction.equalsIgnoreCase("desc")
+            ? Sort.by(sortBy).descending()
+            : Sort.by(sortBy).ascending();
+
+    Pageable pageable = PageRequest.of(page, size, sort);
+
+    Page<Job> jobPage;
+
+    if (status != null && company != null) {
+        jobPage = jobRepository
+                .findByStatusAndCompanyContainingIgnoreCase(status, company, pageable);
+    } else if (status != null) {
+        jobPage = jobRepository.findByStatus(status, pageable);
+    } else if (company != null) {
+        jobPage = jobRepository
+                .findByCompanyContainingIgnoreCase(company, pageable);
+    } else {
+        jobPage = jobRepository.findAll(pageable);
+    }
+
+    List<JobResponseDTO> content = jobPage
+            .getContent()
+            .stream()
+            .map(this::mapToResponse)
+            .toList();
+
+    return new PagedResponse<>(
+            content,
+            jobPage.getNumber(),
+            jobPage.getSize(),
+            jobPage.getTotalElements(),
+            jobPage.getTotalPages()
+    );
+    }
+
 
 }

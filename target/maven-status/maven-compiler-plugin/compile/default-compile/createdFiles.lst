@@ -7,6 +7,7 @@ com/ankit/jobtracker/exception/GlobalExceptionHandler.class
 com/ankit/jobtracker/controller/HealthController.class
 com/ankit/jobtracker/dto/ApiResponse.class
 com/ankit/jobtracker/JobTrackerApplication.class
+com/ankit/jobtracker/dto/PagedResponse.class
 com/ankit/jobtracker/repository/JobRepository.class
 com/ankit/jobtracker/model/Job.class
 com/ankit/jobtracker/dto/JobResponseDTO.class

@@ -3,12 +3,16 @@ package com.ankit.jobtracker.controller;
 import com.ankit.jobtracker.dto.ApiResponse;
 import com.ankit.jobtracker.dto.JobRequestDTO;
 import com.ankit.jobtracker.dto.JobResponseDTO;
+import com.ankit.jobtracker.dto.PagedResponse;
 import com.ankit.jobtracker.model.Job;
 import com.ankit.jobtracker.service.JobService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import jakarta.validation.Valid;
+
+import com.ankit.jobtracker.enums.JobStatus;
+
 
 @RestController
 @RequestMapping("/jobs")
@@ -21,14 +25,22 @@ public class JobController {
     }
 
     @GetMapping
-    public ApiResponse<List<JobResponseDTO>> getAllJobs() {
+    public ApiResponse<PagedResponse<JobResponseDTO>> getJobs(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "5") int size,
+        @RequestParam(defaultValue = "appliedDate") String sortBy,
+        @RequestParam(defaultValue = "desc") String direction,
+        @RequestParam(required = false) JobStatus status,
+        @RequestParam(required = false) String company
+    ) {
 
     return new ApiResponse<>(
             true,
             "Jobs fetched successfully",
-            jobService.getAllJobs()
+            jobService.getJobs(page, size, sortBy, direction, status, company)
     );
     }
+
 
 
     @GetMapping("/{id}")
