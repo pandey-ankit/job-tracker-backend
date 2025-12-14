@@ -1,6 +1,7 @@
 package com.ankit.jobtracker.controller;
 
-import com.ankit.jobtracker.entity.Job;
+import com.ankit.jobtracker.dto.JobRequestDto;
+import com.ankit.jobtracker.dto.JobResponseDto;
 import com.ankit.jobtracker.service.JobService;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,12 +18,28 @@ public class JobController {
     }
 
     @PostMapping
-    public Job createJob(@RequestBody Job job) {
-        return jobService.createJob(job);
+    public JobResponseDto createJob(@RequestBody JobRequestDto dto) {
+        return jobService.createJob(dto);
     }
 
     @GetMapping
-    public List<Job> getAllJobs() {
+    public List<JobResponseDto> getAllJobs() {
         return jobService.getAllJobs();
+    }
+
+    // PUT – full update
+    @PutMapping("/{id}")
+    public JobResponseDto updateJob(
+            @PathVariable Long id,
+            @RequestBody JobRequestDto dto) {
+        return jobService.updateJob(id, dto);
+    }
+
+    // PATCH – partial update
+    @PatchMapping("/{id}")
+    public JobResponseDto patchJob(
+            @PathVariable Long id,
+            @RequestBody JobRequestDto dto) {
+        return jobService.patchJob(id, dto);
     }
 }
