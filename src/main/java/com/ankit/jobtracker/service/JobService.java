@@ -1,5 +1,6 @@
 package com.ankit.jobtracker.service;
 
+import com.ankit.jobtracker.dto.JobPageResponseDto;
 import com.ankit.jobtracker.dto.JobRequestDto;
 import com.ankit.jobtracker.dto.JobResponseDto;
 import com.ankit.jobtracker.entity.Job;
@@ -9,6 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 
 @Service
 public class JobService {
@@ -70,6 +75,81 @@ public class JobService {
 
         return mapToResponse(jobRepository.save(job));
     }
+
+    // DELETE – idempotent
+    public void deleteJob(Long id) {
+
+    Job job = jobRepository.findById(id)
+            .orElseThrow(() ->
+                    new ResourceNotFoundException("Job not found with id: " + id));
+
+    jobRepository.delete(job);
+    }
+
+    public JobPageResponseDto getJobs(Pageable pageable) {
+
+    Page<Job> page = jobRepository.findAll(pageable);
+
+    List<JobResponseDto> jobs = page.getContent()
+            .stream()
+            .map(this::mapToResponse)
+            .toList();
+
+    return new JobPageResponseDto(
+            jobs,
+            page.getNumber(),
+            page.getSize(),
+            page.getTotalElements(),
+            page.getTotalPages(),
+            page.isLast()
+    );
+    }
+
+    public JobPageResponseDto searchJobs(
+        String location,
+        String keyword,
+        Pageable pageable) {
+
+    Page<Job> page;
+
+    if (location != null && keyword != null) {
+        page = jobRepository
+                .findByLocationIgnoreCaseAndTitleContainingIgnoreCaseOrLocationIgnoreCaseAndDescriptionContainingIgnoreCase(
+                        location,
+                        keyword,
+                        location,
+                        keyword,
+                        pageable
+                );
+    } else if (location != null) {
+        page = jobRepository.findByLocationIgnoreCase(location, pageable);
+    } else if (keyword != null) {
+        page = jobRepository
+                .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+                        keyword,
+                        keyword,
+                        pageable
+                );
+    } else {
+        page = jobRepository.findAll(pageable);
+    }
+
+    List<JobResponseDto> jobs = page.getContent()
+            .stream()
+            .map(this::mapToResponse)
+            .toList();
+
+    return new JobPageResponseDto(
+            jobs,
+            page.getNumber(),
+            page.getSize(),
+            page.getTotalElements(),
+            page.getTotalPages(),
+            page.isLast()
+    );
+    }
+
+
 
     // Mapping (unchanged)
     private JobResponseDto mapToResponse(Job job) {
