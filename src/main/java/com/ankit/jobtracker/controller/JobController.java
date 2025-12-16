@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,6 +31,7 @@ public class JobController {
     
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     public JobPageResponseDto getJobs(
         @RequestParam(required = false) String location,
         @RequestParam(required = false) String keyword,
@@ -46,11 +48,13 @@ public class JobController {
 
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public JobResponseDto createJob(@Valid @RequestBody JobRequestDto dto) {
         return jobService.createJob(dto);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public JobResponseDto updateJob(
             @PathVariable Long id,
             @Valid @RequestBody JobRequestDto dto) {
@@ -58,6 +62,7 @@ public class JobController {
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public JobResponseDto patchJob(
             @PathVariable Long id,
             @Valid @RequestBody JobRequestDto dto) {
@@ -66,6 +71,7 @@ public class JobController {
 
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteJob(@PathVariable Long id) {
         jobService.deleteJob(id);
