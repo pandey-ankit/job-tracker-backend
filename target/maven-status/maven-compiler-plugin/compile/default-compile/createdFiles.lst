@@ -1,5 +1,6 @@
 com/ankit/jobtracker/entity/Job.class
 com/ankit/jobtracker/service/JobService.class
+com/ankit/jobtracker/specification/JobSpecifications.class
 com/ankit/jobtracker/enums/JobStatus.class
 com/ankit/jobtracker/dto/JobRequestDto.class
 com/ankit/jobtracker/exception/ResourceNotFoundException.class

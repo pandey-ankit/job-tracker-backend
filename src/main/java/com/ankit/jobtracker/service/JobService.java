@@ -6,6 +6,8 @@ import com.ankit.jobtracker.dto.JobResponseDto;
 import com.ankit.jobtracker.entity.Job;
 import com.ankit.jobtracker.exception.ResourceNotFoundException;
 import com.ankit.jobtracker.repository.JobRepository;
+import com.ankit.jobtracker.specification.JobSpecifications;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 
 
 @Service
@@ -110,29 +113,17 @@ public class JobService {
         String keyword,
         Pageable pageable) {
 
-    Page<Job> page;
+    Specification<Job> spec = Specification.where(null);
 
-    if (location != null && keyword != null) {
-        page = jobRepository
-                .findByLocationIgnoreCaseAndTitleContainingIgnoreCaseOrLocationIgnoreCaseAndDescriptionContainingIgnoreCase(
-                        location,
-                        keyword,
-                        location,
-                        keyword,
-                        pageable
-                );
-    } else if (location != null) {
-        page = jobRepository.findByLocationIgnoreCase(location, pageable);
-    } else if (keyword != null) {
-        page = jobRepository
-                .findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
-                        keyword,
-                        keyword,
-                        pageable
-                );
-    } else {
-        page = jobRepository.findAll(pageable);
+    if (location != null && !location.isBlank()) {
+        spec = spec.and(JobSpecifications.hasLocation(location));
     }
+
+    if (keyword != null && !keyword.isBlank()) {
+        spec = spec.and(JobSpecifications.hasKeyword(keyword));
+    }
+
+    Page<Job> page = jobRepository.findAll(spec, pageable);
 
     List<JobResponseDto> jobs = page.getContent()
             .stream()
@@ -147,7 +138,8 @@ public class JobService {
             page.getTotalPages(),
             page.isLast()
     );
-    }
+}
+
 
 
 
