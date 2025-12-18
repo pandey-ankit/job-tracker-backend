@@ -14,14 +14,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if ("admin".equals(username)) {
             return User.withUsername("admin")
-                    .password("admin123")
+                    .password("$2a$10$j0Ile91FAlRXqgUzw3ySe.X37KVRaGCgXCxdrmoqznFZ.dkmxRC3u")
                     .roles("ADMIN")
                     .build();
         }
 
         if ("user".equals(username)) {
             return User.withUsername("user")
-                    .password("password")
+                    .password("$2a$10$sDxv2V6iuKITWYnZh/xo.OsECF/L5jBiubwM1j0LAj/c6wRdcZH0W")
                     .roles("USER")
                     .build();
         }
