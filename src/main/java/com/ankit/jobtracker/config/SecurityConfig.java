@@ -16,6 +16,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import com.ankit.jobtracker.security.LoginRateLimitFilter;
 import com.ankit.jobtracker.security.OAuth2LoginSuccessHandler;
 import com.ankit.jobtracker.security.OAuth2UserServiceImpl;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
+import org.springframework.http.HttpStatus;
+
 
 @Configuration
 @EnableMethodSecurity
@@ -44,10 +47,16 @@ public class SecurityConfig {
 
         http
             .csrf(csrf -> csrf.disable())
+            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/h2-console/**").permitAll()
                     .anyRequest().authenticated()
             )
+            .exceptionHandling(ex -> ex
+            .authenticationEntryPoint(
+                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+            ))
             .oauth2Login(oauth -> oauth
             .userInfoEndpoint(userInfo ->
                 userInfo.userService(oAuth2UserServiceImpl)

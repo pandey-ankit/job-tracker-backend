@@ -1,31 +1,38 @@
 package com.ankit.jobtracker.security;
 
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.ankit.jobtracker.entity.User;
+import com.ankit.jobtracker.repository.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 
+    private final UserRepository userRepository;
+
+    public CustomUserDetailsService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
-    public UserDetails loadUserByUsername(String username) {
+    public UserDetails loadUserByUsername(String username)
+            throws UsernameNotFoundException {
 
-        if ("admin".equals(username)) {
-            return User.withUsername("admin")
-                    .password("$2a$10$j0Ile91FAlRXqgUzw3ySe.X37KVRaGCgXCxdrmoqznFZ.dkmxRC3u")
-                    .roles("ADMIN")
-                    .build();
-        }
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found"));
 
-        if ("user".equals(username)) {
-            return User.withUsername("user")
-                    .password("$2a$10$sDxv2V6iuKITWYnZh/xo.OsECF/L5jBiubwM1j0LAj/c6wRdcZH0W")
-                    .roles("USER")
-                    .build();
-        }
-
-        throw new UsernameNotFoundException("User not found");
+        return new org.springframework.security.core.userdetails.User(
+                user.getUsername(),
+                user.getPassword(),
+                user.isEnabled(),
+                true,
+                true,
+                true,
+                List.of(new SimpleGrantedAuthority(user.getRole()))
+        );
     }
 }

@@ -2,7 +2,9 @@ package com.ankit.jobtracker.controller;
 
 import com.ankit.jobtracker.dto.AuthRequestDto;
 import com.ankit.jobtracker.dto.AuthResponseDto;
+import com.ankit.jobtracker.dto.ForgotPasswordRequestDto;
 import com.ankit.jobtracker.dto.RefreshTokenRequestDto;
+import com.ankit.jobtracker.dto.ResetPasswordRequestDto;
 import com.ankit.jobtracker.entity.RefreshToken;
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
 import com.ankit.jobtracker.security.JwtUtil;
@@ -21,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.AuthenticationException;
 import com.ankit.jobtracker.security.CaptchaService;
 import com.ankit.jobtracker.security.OtpService;
+import com.ankit.jobtracker.security.PasswordResetService;
 import com.ankit.jobtracker.dto.OtpVerifyRequestDto;
 
 
@@ -37,6 +40,8 @@ public class AuthController {
     private final LoginAttemptService loginAttemptService;
     private final CaptchaService captchaService;
     private final OtpService otpService;
+    private final PasswordResetService passwordResetService;
+
 
 
 
@@ -47,7 +52,8 @@ public class AuthController {
                       RefreshTokenRepository refreshTokenRepository,
                       LoginAttemptService loginAttemptService,
                       CaptchaService captchaService,
-                      OtpService otpService) {
+                      OtpService otpService,
+                      PasswordResetService passwordResetService) {
     this.authenticationManager = authenticationManager;
     this.jwtUtil = jwtUtil;
     this.userDetailsService = userDetailsService;
@@ -55,6 +61,7 @@ public class AuthController {
     this.loginAttemptService = loginAttemptService;
     this.captchaService = captchaService;
     this.otpService = otpService;
+    this.passwordResetService = passwordResetService;
     }
 
 
@@ -104,6 +111,19 @@ public class AuthController {
 
     return new AuthResponseDto(accessToken, refreshToken.getToken());
     }
+
+        @PostMapping("/forgot-password")
+        public void forgotPassword(@RequestBody ForgotPasswordRequestDto request) {
+        passwordResetService.createResetToken(request.getUsername());
+        }
+
+        @PostMapping("/reset-password")
+        public void resetPassword(@RequestBody ResetPasswordRequestDto request) {
+        passwordResetService.resetPassword(
+            request.getToken(),
+            request.getNewPassword()
+        );
+        }
 
 
 
