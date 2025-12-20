@@ -29,6 +29,7 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/AuthResponseDto.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/AuthRequestDto.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/repository/RefreshTokenRepository.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/SessionService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/config/SecurityConfig.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/CustomUserDetailsService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/entity/RefreshToken.java

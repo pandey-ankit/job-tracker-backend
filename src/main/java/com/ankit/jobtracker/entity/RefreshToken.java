@@ -16,8 +16,14 @@ public class RefreshToken {
     @Column(nullable = false)
     private String username;
 
+    
+    private String device;
+
     @Column(nullable = false)
     private Instant expiryDate;
+
+    
+    private Instant createdAt = Instant.now();
 
     @Column(nullable = false)
     private boolean revoked = false;
@@ -34,4 +40,7 @@ public class RefreshToken {
 
     public boolean isRevoked() { return revoked; }
     public void setRevoked(boolean revoked) { this.revoked = revoked; }
+
+    public String getDevice() { return device; }
+    public void setDevice(String device) { this.device = device; }
 }

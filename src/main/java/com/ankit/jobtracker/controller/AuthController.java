@@ -24,6 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import com.ankit.jobtracker.security.CaptchaService;
 import com.ankit.jobtracker.security.OtpService;
 import com.ankit.jobtracker.security.PasswordResetService;
+import com.ankit.jobtracker.security.SessionService;
 import com.ankit.jobtracker.dto.OtpVerifyRequestDto;
 
 
@@ -41,6 +42,8 @@ public class AuthController {
     private final CaptchaService captchaService;
     private final OtpService otpService;
     private final PasswordResetService passwordResetService;
+    private final SessionService sessionService;
+
 
 
 
@@ -53,7 +56,8 @@ public class AuthController {
                       LoginAttemptService loginAttemptService,
                       CaptchaService captchaService,
                       OtpService otpService,
-                      PasswordResetService passwordResetService) {
+                      PasswordResetService passwordResetService,
+                      SessionService sessionService) {
     this.authenticationManager = authenticationManager;
     this.jwtUtil = jwtUtil;
     this.userDetailsService = userDetailsService;
@@ -62,6 +66,7 @@ public class AuthController {
     this.captchaService = captchaService;
     this.otpService = otpService;
     this.passwordResetService = passwordResetService;
+    this.sessionService = sessionService;
     }
 
 
@@ -131,11 +136,16 @@ public class AuthController {
     @PostMapping("/logout")
     public void logout(@RequestBody RefreshTokenRequestDto request) {
 
-        refreshTokenRepository.findByToken(request.getRefreshToken())
-                .ifPresent(token -> {
-                    token.setRevoked(true);
-                    refreshTokenRepository.save(token);
-                });
+    sessionService.logoutCurrentSession(request.getRefreshToken());
     }
+
+    @PostMapping("/logout-all")
+    public void logoutAllDevices(
+        @RequestParam String username) {
+
+    sessionService.logoutAllSessions(username);
+    }
+
+
 }
 

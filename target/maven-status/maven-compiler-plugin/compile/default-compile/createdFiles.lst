@@ -39,5 +39,6 @@ com/ankit/jobtracker/controller/AuthController.class
 com/ankit/jobtracker/config/JwtAuthenticationFilter.class
 com/ankit/jobtracker/security/OAuth2LoginSuccessHandler.class
 com/ankit/jobtracker/controller/JobController.class
+com/ankit/jobtracker/security/SessionService.class
 com/ankit/jobtracker/security/LoginAttemptService$Attempt.class
 com/ankit/jobtracker/config/SecurityConfig.class
