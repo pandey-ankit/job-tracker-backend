@@ -7,8 +7,11 @@ import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.ankit.jobtracker.entity.User;
+
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -47,4 +50,18 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public String generateTokenFromUser(User user) {
+
+    return Jwts.builder()
+            .setSubject(user.getUsername())
+            .claim("roles", List.of(user.getRole()))
+            .setIssuedAt(new Date())
+            .setExpiration(
+                new Date(System.currentTimeMillis() + EXPIRATION_TIME)
+            )
+            .signWith(key)
+            .compact();
+    }
+
 }

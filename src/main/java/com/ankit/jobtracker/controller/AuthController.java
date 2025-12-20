@@ -24,6 +24,7 @@ import org.springframework.security.core.AuthenticationException;
 import com.ankit.jobtracker.security.CaptchaService;
 import com.ankit.jobtracker.security.OtpService;
 import com.ankit.jobtracker.security.PasswordResetService;
+import com.ankit.jobtracker.security.RefreshTokenService;
 import com.ankit.jobtracker.security.SessionService;
 import com.ankit.jobtracker.dto.OtpVerifyRequestDto;
 
@@ -43,6 +44,8 @@ public class AuthController {
     private final OtpService otpService;
     private final PasswordResetService passwordResetService;
     private final SessionService sessionService;
+    private final RefreshTokenService refreshTokenService;
+
 
 
 
@@ -57,7 +60,8 @@ public class AuthController {
                       CaptchaService captchaService,
                       OtpService otpService,
                       PasswordResetService passwordResetService,
-                      SessionService sessionService) {
+                      SessionService sessionService,
+                      RefreshTokenService refreshTokenService) {
     this.authenticationManager = authenticationManager;
     this.jwtUtil = jwtUtil;
     this.userDetailsService = userDetailsService;
@@ -67,6 +71,7 @@ public class AuthController {
     this.otpService = otpService;
     this.passwordResetService = passwordResetService;
     this.sessionService = sessionService;
+    this.refreshTokenService = refreshTokenService;
     }
 
 
@@ -146,6 +151,16 @@ public class AuthController {
     sessionService.logoutAllSessions(username);
     }
 
+    @PostMapping("/refresh")
+    public AuthResponseDto refresh(@RequestBody RefreshTokenRequestDto request) {
+
+    String newAccessToken =
+            refreshTokenService.refreshAccessToken(request.getRefreshToken());
+
+    return new AuthResponseDto(newAccessToken, null);
+    }
+
+    
 
 }
 
