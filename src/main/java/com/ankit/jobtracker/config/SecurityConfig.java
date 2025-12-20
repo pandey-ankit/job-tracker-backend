@@ -14,6 +14,8 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.ankit.jobtracker.security.LoginRateLimitFilter;
+import com.ankit.jobtracker.security.OAuth2LoginSuccessHandler;
+import com.ankit.jobtracker.security.OAuth2UserServiceImpl;
 
 @Configuration
 @EnableMethodSecurity
@@ -23,11 +25,17 @@ public class SecurityConfig {
 
     // ✅ ONLY inject the filter (no provider here)
     private final LoginRateLimitFilter loginRateLimitFilter;
+    private final OAuth2UserServiceImpl oAuth2UserServiceImpl;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                      LoginRateLimitFilter loginRateLimitFilter) {
+                      LoginRateLimitFilter loginRateLimitFilter,
+                      OAuth2UserServiceImpl oAuth2UserServiceImpl,
+                      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.loginRateLimitFilter = loginRateLimitFilter;
+    this.oAuth2UserServiceImpl = oAuth2UserServiceImpl;
+    this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
 
@@ -40,6 +48,13 @@ public class SecurityConfig {
                     .requestMatchers("/auth/**").permitAll()
                     .anyRequest().authenticated()
             )
+            .oauth2Login(oauth -> oauth
+            .userInfoEndpoint(userInfo ->
+                userInfo.userService(oAuth2UserServiceImpl)
+            )
+            .successHandler(oAuth2LoginSuccessHandler)
+            )
+
             .sessionManagement(session ->
                     session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
