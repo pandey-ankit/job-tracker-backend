@@ -4,9 +4,9 @@ public class AuthRequestDto {
 
     private String username;
     private String password;
+    private String captchaToken; // NEW
 
-    public AuthRequestDto() {
-    }
+    public AuthRequestDto() {}
 
     public String getUsername() {
         return username;
@@ -22,5 +22,13 @@ public class AuthRequestDto {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getCaptchaToken() {
+        return captchaToken;
+    }
+
+    public void setCaptchaToken(String captchaToken) {
+        this.captchaToken = captchaToken;
     }
 }

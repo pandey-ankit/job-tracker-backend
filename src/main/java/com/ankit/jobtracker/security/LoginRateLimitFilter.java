@@ -14,9 +14,14 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     private final LoginRateLimiter rateLimiter;
 
-    public LoginRateLimitFilter(LoginRateLimiter rateLimiter) {
-        this.rateLimiter = rateLimiter;
+    private final LoginAttemptService loginAttemptService;
+
+    public LoginRateLimitFilter(LoginRateLimiter rateLimiter,
+                            LoginAttemptService loginAttemptService) {
+    this.rateLimiter = rateLimiter;
+    this.loginAttemptService = loginAttemptService;
     }
+
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
@@ -30,6 +35,12 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String clientIp = request.getRemoteAddr();
+        String username = request.getParameter("username");
+
+        if (username != null && loginAttemptService.isLocked(username)) {
+        filterChain.doFilter(request, response);
+        return;
+        }
 
         if (!rateLimiter.allowRequest(clientIp)) {
             response.setStatus(429);
