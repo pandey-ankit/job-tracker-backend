@@ -1,13 +1,8 @@
-/*package com.ankit.jobtracker.security;
+package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.RefreshToken;
-import com.ankit.jobtracker.entity.User;
-
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
-import com.ankit.jobtracker.repository.UserRepository;
-
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,54 +10,44 @@ import java.util.UUID;
 @Service
 public class RefreshTokenService {
 
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final UserRepository userRepository;
-    private final JwtUtil jwtUtil;
+    private static final long REFRESH_TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
-    public RefreshTokenService(
-            RefreshTokenRepository refreshTokenRepository,
-            UserRepository userRepository,
-            JwtUtil jwtUtil) {
+    private final RefreshTokenRepository refreshTokenRepository;
+
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.userRepository = userRepository;
-        this.jwtUtil = jwtUtil;
     }
 
-    @Transactional
-    public String refreshAccessToken(String refreshTokenValue) {
+    public RefreshToken createRefreshToken(String username) {
+        RefreshToken token = new RefreshToken();
+        token.setToken(UUID.randomUUID().toString());
+        token.setUsername(username);
+        token.setExpiryDate(Instant.now().plusSeconds(REFRESH_TOKEN_EXPIRY_SECONDS));
+        token.setRevoked(false);
 
-        RefreshToken refreshToken = refreshTokenRepository
-                .findByToken(refreshTokenValue)
+        return refreshTokenRepository.save(token);
+    }
+
+    public RefreshToken validateRefreshToken(String tokenValue) {
+        RefreshToken token = refreshTokenRepository.findByToken(tokenValue)
                 .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
 
-        // 🚨 Reuse detection
-        if (refreshToken.isRevoked()) {
-            refreshTokenRepository.deleteByUsername(refreshToken.getUsername());
-            throw new RuntimeException("Refresh token reuse detected");
+        if (token.isRevoked()) {
+            throw new RuntimeException("Refresh token revoked");
         }
 
-        if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
+        if (token.getExpiryDate().isBefore(Instant.now())) {
             throw new RuntimeException("Refresh token expired");
         }
 
-        // 🔄 Rotate token
-        refreshToken.setRevoked(true);
-        refreshTokenRepository.save(refreshToken);
+        return token;
+    }
 
-        RefreshToken newToken = new RefreshToken();
-        newToken.setToken(UUID.randomUUID().toString());
-        newToken.setUsername(refreshToken.getUsername());
-        newToken.setExpiryDate(
-                Instant.now().plusSeconds(7 * 24 * 60 * 60)
-        );
-        refreshTokenRepository.save(newToken);
-
-        // ✅ DB IS SOURCE OF TRUTH
-        User user = userRepository.findByUsername(
-                refreshToken.getUsername()
-        ).orElseThrow(() -> new RuntimeException("User not found"));
-
-        return jwtUtil.generateTokenFromUser(user);
+    public void revokeToken(String tokenValue) {
+        refreshTokenRepository.findByToken(tokenValue)
+                .ifPresent(token -> {
+                    token.setRevoked(true);
+                    refreshTokenRepository.save(token);
+                });
     }
 }
-*/

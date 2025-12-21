@@ -1,7 +1,6 @@
 package com.ankit.jobtracker.dto;
 
-public class RefreshTokenRequestDto {
-
+public class RefreshTokenRequest {
     private String refreshToken;
 
     public String getRefreshToken() {
