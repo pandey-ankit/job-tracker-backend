@@ -8,6 +8,7 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/AuthController.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/config/JwtAuthenticationFilter.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/exception/ResourceNotFoundException.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/LoginRequest.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/repository/PasswordResetTokenRepository.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/entity/Job.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/ResetPasswordRequestDto.java
@@ -32,6 +33,7 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/SessionService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/config/SecurityConfig.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/CustomUserDetailsService.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/LoginResponse.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/entity/RefreshToken.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/repository/UserRepository.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/RefreshTokenService.java

@@ -19,6 +19,14 @@ import com.ankit.jobtracker.security.OAuth2UserServiceImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.http.HttpStatus;
 
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import com.ankit.jobtracker.security.CustomUserDetailsService;
+
+import org.springframework.security.authentication.ProviderManager;
+
+
+
 
 @Configuration
 @EnableMethodSecurity
@@ -30,32 +38,56 @@ public class SecurityConfig {
     private final LoginRateLimitFilter loginRateLimitFilter;
     private final OAuth2UserServiceImpl oAuth2UserServiceImpl;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CustomUserDetailsService customUserDetailsService;
 
     public SecurityConfig(LoginRateLimitFilter loginRateLimitFilter,
                       OAuth2UserServiceImpl oAuth2UserServiceImpl,
-                      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+                      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+                      CustomUserDetailsService customUserDetailsService) {
     this.loginRateLimitFilter = loginRateLimitFilter;
     this.oAuth2UserServiceImpl = oAuth2UserServiceImpl;
     this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+    this.customUserDetailsService = customUserDetailsService;
     }
+
+
+    
 
 
    @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
+        .authenticationProvider(authenticationProvider())
         .authorizeHttpRequests(auth -> auth
             .anyRequest().permitAll()
         );
+
     return http.build();
     }
 
+/* 
     // ✅ AuthenticationManager (no circular dependency)
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+*/
+
+    @Bean
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(customUserDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager() {
+        return new ProviderManager(authenticationProvider());
+    }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

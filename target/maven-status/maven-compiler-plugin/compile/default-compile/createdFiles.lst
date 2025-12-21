@@ -6,6 +6,8 @@ com/ankit/jobtracker/dto/ResetPasswordRequestDto.class
 com/ankit/jobtracker/security/LoginRateLimiter.class
 com/ankit/jobtracker/security/JwtUtil.class
 com/ankit/jobtracker/entity/OtpToken.class
+com/ankit/jobtracker/dto/LoginResponse.class
+com/ankit/jobtracker/dto/LoginRequest.class
 com/ankit/jobtracker/security/OAuth2UserServiceImpl.class
 com/ankit/jobtracker/repository/PasswordResetTokenRepository.class
 com/ankit/jobtracker/entity/PasswordResetToken.class
