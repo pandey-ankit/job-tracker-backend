@@ -1,3 +1,4 @@
+/* 
 package com.ankit.jobtracker.config;
 
 import com.ankit.jobtracker.security.JwtUtil;
@@ -72,3 +73,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 }
+*/

@@ -1,6 +1,7 @@
 package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.PasswordResetToken;
+//import com.ankit.jobtracker.entity.User;
 import com.ankit.jobtracker.entity.User;
 import com.ankit.jobtracker.repository.PasswordResetTokenRepository;
 import com.ankit.jobtracker.repository.RefreshTokenRepository;

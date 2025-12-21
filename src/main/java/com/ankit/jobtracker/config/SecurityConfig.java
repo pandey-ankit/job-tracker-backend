@@ -24,61 +24,30 @@ import org.springframework.http.HttpStatus;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+  //  private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // ✅ ONLY inject the filter (no provider here)
     private final LoginRateLimitFilter loginRateLimitFilter;
     private final OAuth2UserServiceImpl oAuth2UserServiceImpl;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
-                      LoginRateLimitFilter loginRateLimitFilter,
+    public SecurityConfig(LoginRateLimitFilter loginRateLimitFilter,
                       OAuth2UserServiceImpl oAuth2UserServiceImpl,
                       OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
-    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.loginRateLimitFilter = loginRateLimitFilter;
     this.oAuth2UserServiceImpl = oAuth2UserServiceImpl;
     this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-
-        http
-            .csrf(csrf -> csrf.disable())
-            .headers(headers -> headers.frameOptions(frame -> frame.disable()))
-            .authorizeHttpRequests(auth -> auth
-                    .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/h2-console/**").permitAll()
-                    .requestMatchers("/actuator/**").permitAll()
-                    .anyRequest().authenticated()
-            )
-            .exceptionHandling(ex -> ex
-            .authenticationEntryPoint(
-                new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
-            ))
-            .oauth2Login(oauth -> oauth
-            .userInfoEndpoint(userInfo ->
-                userInfo.userService(oAuth2UserServiceImpl)
-            )
-            .successHandler(oAuth2LoginSuccessHandler)
-            )
-
-            .sessionManagement(session ->
-                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
-            .addFilterBefore(
-            loginRateLimitFilter,
-            UsernamePasswordAuthenticationFilter.class
-            )
-
-            .addFilterBefore(
-                    jwtAuthenticationFilter,
-                    UsernamePasswordAuthenticationFilter.class
-            );
-
-        return http.build();
+   @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll()
+        );
+    return http.build();
     }
 
     // ✅ AuthenticationManager (no circular dependency)

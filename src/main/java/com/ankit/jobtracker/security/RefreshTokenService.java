@@ -2,6 +2,7 @@ package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.RefreshToken;
 import com.ankit.jobtracker.entity.User;
+
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
 import com.ankit.jobtracker.repository.UserRepository;
 

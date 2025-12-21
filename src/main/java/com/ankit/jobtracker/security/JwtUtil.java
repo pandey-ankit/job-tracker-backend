@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import com.ankit.jobtracker.entity.User;
 
+
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
@@ -55,7 +56,7 @@ public class JwtUtil {
 
     return Jwts.builder()
             .setSubject(user.getUsername())
-            .claim("roles", List.of(user.getRole()))
+            .claim("roles", List.of(user.getRoles()))
             .setIssuedAt(new Date())
             .setExpiration(
                 new Date(System.currentTimeMillis() + EXPIRATION_TIME)
