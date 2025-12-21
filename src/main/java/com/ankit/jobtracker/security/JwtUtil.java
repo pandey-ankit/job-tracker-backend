@@ -1,68 +1,60 @@
 package com.ankit.jobtracker.security;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import com.ankit.jobtracker.entity.User;
-
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
-    private final long EXPIRATION_TIME = 1000 * 60 * 15; // 1 hour
+    private final Key key;
+    private final long expiration;
 
-    public String generateToken(UserDetails userDetails) {
+    public JwtUtil(
+            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.expiration}") long expiration) {
+        this.key = Keys.hmacShaKeyFor(secret.getBytes());
+        this.expiration = expiration;
+    }
 
+    public String generateToken(String username, List<String> roles) {
         return Jwts.builder()
-                .setSubject(userDetails.getUsername())
-                .claim("roles", userDetails.getAuthorities()
-                        .stream()
-                        .map(a -> a.getAuthority())
-                        .collect(Collectors.toList()))
+                .setSubject(username)
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
     }
 
     public String extractUsername(String token) {
-        return getClaims(token).getSubject();
+        return parseClaims(token).getSubject();
     }
 
-    public boolean validateToken(String token, UserDetails userDetails) {
-        return extractUsername(token).equals(userDetails.getUsername())
-                && !getClaims(token).getExpiration().before(new Date());
+    @SuppressWarnings("unchecked")
+    public List<String> extractRoles(String token) {
+        return (List<String>) parseClaims(token).get("roles");
     }
 
-    private Claims getClaims(String token) {
+    public boolean isTokenValid(String token) {
+        try {
+            parseClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    private Claims parseClaims(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-    public String generateTokenFromUser(User user) {
-
-    return Jwts.builder()
-            .setSubject(user.getUsername())
-            .claim("roles", List.of(user.getRoles()))
-            .setIssuedAt(new Date())
-            .setExpiration(
-                new Date(System.currentTimeMillis() + EXPIRATION_TIME)
-            )
-            .signWith(key)
-            .compact();
-    }
-
 }

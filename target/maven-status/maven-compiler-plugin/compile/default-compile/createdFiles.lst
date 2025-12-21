@@ -1,6 +1,5 @@
 com/ankit/jobtracker/entity/Job.class
 com/ankit/jobtracker/security/LoginRateLimitFilter.class
-com/ankit/jobtracker/security/RefreshTokenService.class
 com/ankit/jobtracker/dto/JobRequestDto.class
 com/ankit/jobtracker/dto/ResetPasswordRequestDto.class
 com/ankit/jobtracker/security/LoginRateLimiter.class
@@ -39,7 +38,7 @@ com/ankit/jobtracker/dto/ApiResponse.class
 com/ankit/jobtracker/dto/AuthRequestDto.class
 com/ankit/jobtracker/repository/JobRepository.class
 com/ankit/jobtracker/controller/AuthController.class
-com/ankit/jobtracker/security/OAuth2LoginSuccessHandler.class
+com/ankit/jobtracker/config/JwtAuthenticationFilter.class
 com/ankit/jobtracker/controller/JobController.class
 com/ankit/jobtracker/security/SessionService.class
 com/ankit/jobtracker/security/LoginAttemptService$Attempt.class

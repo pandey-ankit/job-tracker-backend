@@ -4,15 +4,21 @@ import java.util.List;
 
 public class LoginResponse {
 
+    private String accessToken;
+    private String tokenType;
     private String username;
     private List<String> roles;
-    private String message;
 
-    public LoginResponse(String username, List<String> roles, String message) {
+    public LoginResponse(String accessToken, String tokenType,
+                         String username, List<String> roles) {
+        this.accessToken = accessToken;
+        this.tokenType = tokenType;
         this.username = username;
         this.roles = roles;
-        this.message = message;
     }
+
+    // getters
+
 
     public String getUsername() {
         return username;
@@ -22,7 +28,11 @@ public class LoginResponse {
         return roles;
     }
 
-    public String getMessage() {
-        return message;
+    public String getAccessToken() {
+        return accessToken;
     }
+    public String getTokenType() {
+        return tokenType;
+    }
+    
 }

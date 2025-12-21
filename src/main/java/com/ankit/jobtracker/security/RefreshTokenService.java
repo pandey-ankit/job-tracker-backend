@@ -1,4 +1,4 @@
-package com.ankit.jobtracker.security;
+/*package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.RefreshToken;
 import com.ankit.jobtracker.entity.User;
@@ -65,3 +65,4 @@ public class RefreshTokenService {
         return jwtUtil.generateTokenFromUser(user);
     }
 }
+*/

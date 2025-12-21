@@ -14,7 +14,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.ankit.jobtracker.security.LoginRateLimitFilter;
-import com.ankit.jobtracker.security.OAuth2LoginSuccessHandler;
+//import com.ankit.jobtracker.security.OAuth2LoginSuccessHandler;
 import com.ankit.jobtracker.security.OAuth2UserServiceImpl;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.http.HttpStatus;
@@ -32,22 +32,22 @@ import org.springframework.security.authentication.ProviderManager;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  //  private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     // ✅ ONLY inject the filter (no provider here)
     private final LoginRateLimitFilter loginRateLimitFilter;
     private final OAuth2UserServiceImpl oAuth2UserServiceImpl;
-    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+   // private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
     private final CustomUserDetailsService customUserDetailsService;
 
     public SecurityConfig(LoginRateLimitFilter loginRateLimitFilter,
                       OAuth2UserServiceImpl oAuth2UserServiceImpl,
-                      OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
-                      CustomUserDetailsService customUserDetailsService) {
+                      CustomUserDetailsService customUserDetailsService,
+                      JwtAuthenticationFilter jwtAuthenticationFilter) {
     this.loginRateLimitFilter = loginRateLimitFilter;
     this.oAuth2UserServiceImpl = oAuth2UserServiceImpl;
-    this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     this.customUserDetailsService = customUserDetailsService;
+    this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
 
 
@@ -58,13 +58,20 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .csrf(csrf -> csrf.disable())
-        .authenticationProvider(authenticationProvider())
+        .sessionManagement(session ->
+            session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
         .authorizeHttpRequests(auth -> auth
-            .anyRequest().permitAll()
-        );
+            .requestMatchers("/auth/login").permitAll()
+            .anyRequest().authenticated()
+        )
+        .authenticationProvider(authenticationProvider())
+        .addFilterBefore(jwtAuthenticationFilter,
+                UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
     }
+
 
 /* 
     // ✅ AuthenticationManager (no circular dependency)
