@@ -4,14 +4,14 @@ import java.util.List;
 
 public class JobPageResponseDto {
 
-    private List<JobResponseDto> content;
+    private List<JobResponse> content;
     private int page;
     private int size;
     private long totalElements;
     private int totalPages;
     private boolean last;
 
-    public JobPageResponseDto(List<JobResponseDto> content,
+    public JobPageResponseDto(List<JobResponse> content,
                               int page,
                               int size,
                               long totalElements,
@@ -25,7 +25,7 @@ public class JobPageResponseDto {
         this.last = last;
     }
 
-    public List<JobResponseDto> getContent() {
+    public List<JobResponse> getContent() {
         return content;
     }
 

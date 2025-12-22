@@ -1,20 +1,27 @@
 package com.ankit.jobtracker.dto;
 
-public class JobResponseDto {
+import java.time.Instant;
+
+public class JobResponse {
 
     private Long id;
     private String title;
     private String description;
     private String location;
+    private Instant createdAt;
 
-    public JobResponseDto() {
-    }
-
-    public JobResponseDto(Long id, String title, String description, String location) {
+    public JobResponse(
+            Long id,
+            String title,
+            String description,
+            String location,
+            Instant createdAt
+    ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.location = location;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -31,5 +38,9 @@ public class JobResponseDto {
 
     public String getLocation() {
         return location;
+    }
+
+    public Instant getCreatedAt() {
+        return createdAt;
     }
 }

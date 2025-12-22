@@ -3,7 +3,7 @@ package com.ankit.jobtracker.controller;
 import com.ankit.jobtracker.dto.CreateJobRequest;
 import com.ankit.jobtracker.dto.JobPageResponseDto;
 import com.ankit.jobtracker.dto.JobRequestDto;
-import com.ankit.jobtracker.dto.JobResponseDto;
+import com.ankit.jobtracker.dto.JobResponse;
 import com.ankit.jobtracker.entity.Job;
 import com.ankit.jobtracker.repository.JobRepository;
 import com.ankit.jobtracker.service.JobService;
@@ -36,7 +36,7 @@ public class JobController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public Page<Job> listJobs(
+    public Page<JobResponse> listJobs(
         Authentication authentication,
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
@@ -60,8 +60,8 @@ public class JobController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @jobSecurity.isOwner(#id, authentication)")
-    public Job getJob(@PathVariable Long id) {
-        return jobService.getJobById(id);
+    public JobResponse getJob(@PathVariable Long id) {
+        return jobService.getJobResponseById(id);
     }
 
     @PostMapping

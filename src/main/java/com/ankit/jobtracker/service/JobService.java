@@ -1,6 +1,7 @@
 package com.ankit.jobtracker.service;
 
 import com.ankit.jobtracker.dto.CreateJobRequest;
+import com.ankit.jobtracker.dto.JobResponse;
 import com.ankit.jobtracker.entity.Job;
 import com.ankit.jobtracker.exception.ResourceNotFoundException;
 import com.ankit.jobtracker.repository.JobRepository;
@@ -49,29 +50,37 @@ public Job createJob(CreateJobRequest request, Authentication authentication) {
      * USER  -> own jobs
      * ADMIN -> all jobs
      */
-    public Page<Job> listJobs(Authentication authentication, Pageable pageable) {
 
-        boolean isAdmin = authentication.getAuthorities()
-                .stream()
-                .map(GrantedAuthority::getAuthority)
-                .anyMatch(role -> role.equals("ROLE_ADMIN"));
+    public Page<JobResponse> listJobs(Authentication authentication, Pageable pageable) {
 
-        if (isAdmin) {
-            return jobRepository.findAll(pageable);
-        }
+    boolean isAdmin = authentication.getAuthorities()
+            .stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        return jobRepository.findByOwnerUsername(authentication.getName(), pageable);
+    Page<Job> jobs = isAdmin
+            ? jobRepository.findAll(pageable)
+            : jobRepository.findByOwnerUsername(authentication.getName(), pageable);
+
+    return jobs.map(this::toResponse);
     }
+
 
     /**
      * GET JOB BY ID
      */
-    public Job getJobById(Long id) {
+
+   public Job getJobById(Long id) {
     return jobRepository.findById(id)
             .orElseThrow(() ->
                 new ResourceNotFoundException("Job not found with id: " + id)
             );
+}
+    
+   public JobResponse getJobResponseById(Long id) {
+    Job job = getJobById(id);
+    return toResponse(job);
     }
+
 
     /**
      * UPDATE JOB
@@ -93,4 +102,14 @@ public Job createJob(CreateJobRequest request, Authentication authentication) {
     public void deleteJob(Long id) {
         jobRepository.deleteById(id);
     }
+
+    private JobResponse toResponse(Job job) {
+    return new JobResponse(
+            job.getId(),
+            job.getTitle(),
+            job.getDescription(),
+            job.getLocation(),
+            job.getCreatedAt()
+    );
+}
 }
