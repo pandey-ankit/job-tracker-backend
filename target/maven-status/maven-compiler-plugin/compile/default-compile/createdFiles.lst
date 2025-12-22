@@ -25,6 +25,7 @@ com/ankit/jobtracker/config/JwtAuthenticationFilter.class
 com/ankit/jobtracker/dto/RefreshTokenRequest.class
 com/ankit/jobtracker/config/SecurityConfig.class
 com/ankit/jobtracker/security/RefreshTokenService.class
+com/ankit/jobtracker/dto/CreateJobRequest.class
 com/ankit/jobtracker/security/LoginRateLimiter.class
 com/ankit/jobtracker/security/JwtUtil.class
 com/ankit/jobtracker/dto/LoginResponse.class

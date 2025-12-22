@@ -1,5 +1,6 @@
 package com.ankit.jobtracker.controller;
 
+import com.ankit.jobtracker.dto.CreateJobRequest;
 import com.ankit.jobtracker.dto.JobPageResponseDto;
 import com.ankit.jobtracker.dto.JobRequestDto;
 import com.ankit.jobtracker.dto.JobResponseDto;
@@ -65,9 +66,13 @@ public class JobController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
-    public Job createJob(@RequestBody Job job, Authentication authentication) {
-        return jobService.createJob(job, authentication);
+    public Job createJob(
+            @Valid @RequestBody CreateJobRequest request,
+            Authentication authentication
+    ) {
+        return jobService.createJob(request, authentication);
     }
+
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @jobSecurity.isOwner(#id, authentication)")

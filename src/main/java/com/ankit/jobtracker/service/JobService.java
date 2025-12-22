@@ -1,8 +1,12 @@
 package com.ankit.jobtracker.service;
 
+import com.ankit.jobtracker.dto.CreateJobRequest;
 import com.ankit.jobtracker.entity.Job;
 import com.ankit.jobtracker.exception.ResourceNotFoundException;
 import com.ankit.jobtracker.repository.JobRepository;
+
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
@@ -10,6 +14,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+
 
 @Service
 public class JobService {
@@ -24,13 +29,20 @@ public class JobService {
      * CREATE JOB
      * OWNER is derived from Authentication
      */
-    public Job createJob(Job job, Authentication authentication) {
 
-        job.setOwnerUsername(authentication.getName());
-        job.setCreatedAt(Instant.now());
 
-        return jobRepository.save(job);
-    }
+public Job createJob(CreateJobRequest request, Authentication authentication) {
+
+    Job job = new Job();
+    job.setTitle(request.getTitle());
+    job.setDescription(request.getDescription());
+    job.setLocation(request.getLocation());
+    job.setOwnerUsername(authentication.getName());
+    job.setCreatedAt(Instant.now());
+
+    return jobRepository.save(job);
+}
+
 
     /**
      * LIST JOBS (Paginated)
