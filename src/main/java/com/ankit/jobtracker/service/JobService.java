@@ -1,22 +1,14 @@
 package com.ankit.jobtracker.service;
 
-import com.ankit.jobtracker.dto.JobPageResponseDto;
-import com.ankit.jobtracker.dto.JobRequestDto;
-import com.ankit.jobtracker.dto.JobResponseDto;
 import com.ankit.jobtracker.entity.Job;
-import com.ankit.jobtracker.exception.ResourceNotFoundException;
 import com.ankit.jobtracker.repository.JobRepository;
-import com.ankit.jobtracker.specification.JobSpecifications;
-
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 
 @Service
 public class JobService {
@@ -27,129 +19,63 @@ public class JobService {
         this.jobRepository = jobRepository;
     }
 
-    // CREATE
-    public JobResponseDto createJob(JobRequestDto dto) {
-        Job job = new Job();
-        job.setTitle(dto.getTitle());
-        job.setDescription(dto.getDescription());
-        job.setLocation(dto.getLocation());
+    /**
+     * CREATE JOB
+     * OWNER is derived from Authentication
+     */
+    public Job createJob(Job job, Authentication authentication) {
 
-        return mapToResponse(jobRepository.save(job));
+        job.setOwnerUsername(authentication.getName());
+        job.setCreatedAt(Instant.now());
+
+        return jobRepository.save(job);
     }
 
-    // READ
-    public List<JobResponseDto> getAllJobs() {
-        return jobRepository.findAll()
+    /**
+     * LIST JOBS (Paginated)
+     * USER  -> own jobs
+     * ADMIN -> all jobs
+     */
+    public Page<Job> listJobs(Authentication authentication, Pageable pageable) {
+
+        boolean isAdmin = authentication.getAuthorities()
                 .stream()
-                .map(this::mapToResponse)
-                .collect(Collectors.toList());
-    }
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(role -> role.equals("ROLE_ADMIN"));
 
-    // PUT – FULL UPDATE (NEW)
-    public JobResponseDto updateJob(Long id, JobRequestDto dto) {
-
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Job not found with id: " + id));
-
-        job.setTitle(dto.getTitle());
-        job.setDescription(dto.getDescription());
-        job.setLocation(dto.getLocation());
-
-        return mapToResponse(jobRepository.save(job));
-    }
-
-    // PATCH – PARTIAL UPDATE (NEW)
-    public JobResponseDto patchJob(Long id, JobRequestDto dto) {
-
-        Job job = jobRepository.findById(id)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("Job not found with id: " + id));
-
-        if (dto.getTitle() != null) {
-            job.setTitle(dto.getTitle());
-        }
-        if (dto.getDescription() != null) {
-            job.setDescription(dto.getDescription());
-        }
-        if (dto.getLocation() != null) {
-            job.setLocation(dto.getLocation());
+        if (isAdmin) {
+            return jobRepository.findAll(pageable);
         }
 
-        return mapToResponse(jobRepository.save(job));
+        return jobRepository.findByOwnerUsername(authentication.getName(), pageable);
     }
 
-    // DELETE – idempotent
+    /**
+     * GET JOB BY ID
+     */
+    public Job getJobById(Long id) {
+        return jobRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Job not found"));
+    }
+
+    /**
+     * UPDATE JOB
+     */
+    public Job updateJob(Long id, Job updatedJob) {
+
+        Job existing = getJobById(id);
+
+        existing.setTitle(updatedJob.getTitle());
+        existing.setDescription(updatedJob.getDescription());
+        existing.setLocation(updatedJob.getLocation());
+
+        return jobRepository.save(existing);
+    }
+
+    /**
+     * DELETE JOB
+     */
     public void deleteJob(Long id) {
-
-    Job job = jobRepository.findById(id)
-            .orElseThrow(() ->
-                    new ResourceNotFoundException("Job not found with id: " + id));
-
-    jobRepository.delete(job);
-    }
-
-    public JobPageResponseDto getJobs(Pageable pageable) {
-
-    Page<Job> page = jobRepository.findAll(pageable);
-
-    List<JobResponseDto> jobs = page.getContent()
-            .stream()
-            .map(this::mapToResponse)
-            .toList();
-
-    return new JobPageResponseDto(
-            jobs,
-            page.getNumber(),
-            page.getSize(),
-            page.getTotalElements(),
-            page.getTotalPages(),
-            page.isLast()
-    );
-    }
-
-    public JobPageResponseDto searchJobs(
-        String location,
-        String keyword,
-        Pageable pageable) {
-
-    Specification<Job> spec = Specification.where(null);
-
-    if (location != null && !location.isBlank()) {
-        spec = spec.and(JobSpecifications.hasLocation(location));
-    }
-
-    if (keyword != null && !keyword.isBlank()) {
-        spec = spec.and(JobSpecifications.hasKeyword(keyword));
-    }
-
-    Page<Job> page = jobRepository.findAll(spec, pageable);
-
-    List<JobResponseDto> jobs = page.getContent()
-            .stream()
-            .map(this::mapToResponse)
-            .toList();
-
-    return new JobPageResponseDto(
-            jobs,
-            page.getNumber(),
-            page.getSize(),
-            page.getTotalElements(),
-            page.getTotalPages(),
-            page.isLast()
-    );
-}
-
-
-
-
-    // Mapping (unchanged)
-    private JobResponseDto mapToResponse(Job job) {
-        return new JobResponseDto(
-                job.getId(),
-                job.getTitle(),
-                job.getDescription(),
-                job.getLocation()
-        );
+        jobRepository.deleteById(id);
     }
 }

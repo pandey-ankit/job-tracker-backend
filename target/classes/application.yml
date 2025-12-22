@@ -17,3 +17,6 @@ server:
 jwt:
   secret: my-super-secret-key-for-jobtracker-123456
   expiration: 900000   # 15 minutes (in ms)
+logging:
+  level:
+    org.springframework.security: DEBUG

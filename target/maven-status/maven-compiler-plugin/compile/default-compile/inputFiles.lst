@@ -36,10 +36,12 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/LoginResponse.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/entity/RefreshToken.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/repository/UserRepository.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/JobSecurity.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/RefreshTokenService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/HealthController.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/specification/JobSpecifications.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/JobController.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/PasswordResetService.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/ForgotPasswordRequestDto.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/controller/AdminController.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/OtpVerifyRequestDto.java
