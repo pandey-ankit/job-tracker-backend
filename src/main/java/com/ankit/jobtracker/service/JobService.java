@@ -1,6 +1,7 @@
 package com.ankit.jobtracker.service;
 
 import com.ankit.jobtracker.entity.Job;
+import com.ankit.jobtracker.exception.ResourceNotFoundException;
 import com.ankit.jobtracker.repository.JobRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -54,8 +55,10 @@ public class JobService {
      * GET JOB BY ID
      */
     public Job getJobById(Long id) {
-        return jobRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Job not found"));
+    return jobRepository.findById(id)
+            .orElseThrow(() ->
+                new ResourceNotFoundException("Job not found with id: " + id)
+            );
     }
 
     /**

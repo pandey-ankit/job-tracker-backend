@@ -26,6 +26,7 @@
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/entity/User.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/JwtUtil.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/security/OtpService.java
+/home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/exception/ApiError.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/JobResponseDto.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/AuthResponseDto.java
 /home/ankitshani/projects/job-tracker/job-tracker-backend/src/main/java/com/ankit/jobtracker/dto/AuthRequestDto.java

@@ -1,5 +1,6 @@
 com/ankit/jobtracker/entity/Job.class
 com/ankit/jobtracker/security/LoginRateLimitFilter.class
+com/ankit/jobtracker/exception/ApiError.class
 com/ankit/jobtracker/dto/JobRequestDto.class
 com/ankit/jobtracker/dto/ResetPasswordRequestDto.class
 com/ankit/jobtracker/entity/OtpToken.class
