@@ -2,10 +2,15 @@ package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.RefreshToken;
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
+
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
+import com.ankit.jobtracker.entity.User;
+import com.ankit.jobtracker.security.JwtUtil;
+import com.ankit.jobtracker.repository.UserRepository;
 
 @Service
 public class RefreshTokenService {
@@ -13,9 +18,13 @@ public class RefreshTokenService {
     private static final long REFRESH_TOKEN_EXPIRY_SECONDS = 7 * 24 * 60 * 60; // 7 days
 
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
+    private final JwtUtil jwtUtil;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository) {
+    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, JwtUtil jwtUtil) {
         this.refreshTokenRepository = refreshTokenRepository;
+        this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public RefreshToken createRefreshToken(String username) {
@@ -50,4 +59,22 @@ public class RefreshTokenService {
                     refreshTokenRepository.save(token);
                 });
     }
+
+    public String refreshAccessToken(String refreshTokenValue) {
+
+        RefreshToken refreshToken = refreshTokenRepository
+                .findByToken(refreshTokenValue)
+                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+
+        if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
+            throw new RuntimeException("Refresh token expired");
+        }
+
+        String username = refreshToken.getUsername(); // DB-backed user
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+        return jwtUtil.generateToken(user);
+    }
+
+
 }

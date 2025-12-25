@@ -4,8 +4,10 @@ import com.ankit.jobtracker.dto.LoginRequest;
 import com.ankit.jobtracker.dto.LoginResponse;
 import com.ankit.jobtracker.dto.RefreshTokenRequest;
 import com.ankit.jobtracker.entity.RefreshToken;
+import com.ankit.jobtracker.entity.User;
 import com.ankit.jobtracker.security.RefreshTokenService;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -29,6 +31,7 @@ public class AuthController {
         this.refreshTokenService = refreshTokenService;
     }
 
+        @SuppressWarnings("unchecked")
         @PostMapping("/login")
         public LoginResponse login(@RequestBody LoginRequest request) {
 
@@ -38,13 +41,11 @@ public class AuthController {
                     request.getPassword()
             )
         );
+       
+        User user = (User) authentication.getPrincipal();
+        List<String> roles = (List<String>) user.getRoles();
 
-        List<String> roles = authentication.getAuthorities()
-            .stream()
-            .map(GrantedAuthority::getAuthority)
-            .toList();
-
-        String accessToken = jwtUtil.generateToken(authentication.getName(), roles);
+        String accessToken = jwtUtil.generateToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication.getName());
 
         return new LoginResponse(
@@ -57,22 +58,11 @@ public class AuthController {
         }
 
         @PostMapping("/refresh")
-        public LoginResponse refresh(@RequestBody RefreshTokenRequest request) {
-        System.out.println(">>> HIT /auth/refresh with token = " + request.getRefreshToken());
-        RefreshToken refreshToken =
-                refreshTokenService.validateRefreshToken(request.getRefreshToken());
-
-        String newAccessToken =
-                jwtUtil.generateToken(refreshToken.getUsername(), List.of());
-
-        return new LoginResponse(
-                newAccessToken,
-                request.getRefreshToken(),
-                "Bearer",
-                refreshToken.getUsername(),
-                List.of()
-        );
+        public String refresh(@RequestBody RefreshTokenRequest request) {
+        String accessToken = refreshTokenService.refreshAccessToken(request.getRefreshToken());
+        return accessToken;
         }
+
 
         @PostMapping("/logout")
         public String logout(@RequestBody RefreshTokenRequest request) {

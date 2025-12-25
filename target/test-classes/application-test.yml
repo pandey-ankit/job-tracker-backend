@@ -1,3 +1,0 @@
-jwt:
-  secret: testtesttesttesttesttesttesttest
-  expiration: 3600000

@@ -10,8 +10,10 @@ import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -32,7 +34,15 @@ public class JobService {
      */
 
 
-public Job createJob(CreateJobRequest request, Authentication authentication) {
+    public String getCurrentUsername() {
+    return SecurityContextHolder.getContext()
+            .getAuthentication()
+            .getName();
+    }
+
+
+
+    public Job createJob(CreateJobRequest request, Authentication authentication) {
 
     Job job = new Job();
     job.setTitle(request.getTitle());
@@ -69,12 +79,29 @@ public Job createJob(CreateJobRequest request, Authentication authentication) {
      * GET JOB BY ID
      */
 
-   public Job getJobById(Long id) {
-    return jobRepository.findById(id)
-            .orElseThrow(() ->
-                new ResourceNotFoundException("Job not found with id: " + id)
-            );
-}
+   public Job getJobById(Long jobId) {
+
+    Job job = jobRepository.findById(jobId)
+            .orElseThrow(() -> new RuntimeException("Job not found"));
+
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+    boolean isAdmin = auth.getAuthorities().stream()
+            .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+    if (isAdmin) {
+        return job;
+    }
+
+    String currentUser = auth.getName();
+
+    if (!job.getOwnerUsername().equals(currentUser)) {
+        throw new AccessDeniedException("You are not allowed to view this job");
+    }
+
+    return job;
+    }
+
     
    public JobResponse getJobResponseById(Long id) {
     Job job = getJobById(id);

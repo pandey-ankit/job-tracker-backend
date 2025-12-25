@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.ankit.jobtracker.entity.User;
+
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
@@ -24,10 +26,10 @@ public class JwtUtil {
     }
 
     // ✅ Used during login
-    public String generateToken(String username, List<String> roles) {
+    public String generateToken(User user) {
         return Jwts.builder()
-                .setSubject(username)
-                .claim("roles", roles)
+                .setSubject(user.getUsername())
+                .claim("roles", user.getRoles())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
