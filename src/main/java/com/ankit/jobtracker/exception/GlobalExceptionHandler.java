@@ -65,19 +65,38 @@ public ResponseEntity<ApiError> handleValidation(
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
 }
 
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+        public ResponseEntity<ApiError> handleInvalidRefreshToken(
+                InvalidRefreshTokenException ex,
+                HttpServletRequest request
+        ) {
+        ApiError error = new ApiError(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiError> handleGeneric(
-            Exception ex,
-            HttpServletRequest request
-    ) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
+
+
+
+        @ExceptionHandler(Exception.class)
+        public ResponseEntity<ApiError> handleGeneric(
+                Exception ex,
+                HttpServletRequest request
+        ) {
+        ex.printStackTrace(); // 🔥 CRITICAL
+
         ApiError error = new ApiError(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
                 "Internal Server Error",
-                "Something went wrong",
+                ex.getClass().getName() + ": " + ex.getMessage(),
                 request.getRequestURI()
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
-    }
+        }
+
 }

@@ -1,16 +1,16 @@
 package com.ankit.jobtracker.security;
 
 import com.ankit.jobtracker.entity.RefreshToken;
+import com.ankit.jobtracker.entity.User;
+import com.ankit.jobtracker.exception.InvalidRefreshTokenException;
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
+import com.ankit.jobtracker.repository.UserRepository;
 
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.UUID;
-import com.ankit.jobtracker.entity.User;
-import com.ankit.jobtracker.security.JwtUtil;
-import com.ankit.jobtracker.repository.UserRepository;
 
 @Service
 public class RefreshTokenService {
@@ -21,7 +21,11 @@ public class RefreshTokenService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository, JwtUtil jwtUtil) {
+    public RefreshTokenService(
+            RefreshTokenRepository refreshTokenRepository,
+            UserRepository userRepository,
+            JwtUtil jwtUtil
+    ) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
@@ -37,16 +41,18 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(token);
     }
 
+    // ✅ SINGLE SOURCE OF TRUTH
     public RefreshToken validateRefreshToken(String tokenValue) {
+
         RefreshToken token = refreshTokenRepository.findByToken(tokenValue)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+                .orElseThrow(() -> new InvalidRefreshTokenException("Invalid refresh token"));
 
         if (token.isRevoked()) {
-            throw new RuntimeException("Refresh token revoked");
+            throw new InvalidRefreshTokenException("Refresh token revoked");
         }
 
         if (token.getExpiryDate().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expired");
+            throw new InvalidRefreshTokenException("Refresh token expired");
         }
 
         return token;
@@ -60,21 +66,18 @@ public class RefreshTokenService {
                 });
     }
 
+    // ✅ FIXED: reuse validation logic
     public String refreshAccessToken(String refreshTokenValue) {
 
-        RefreshToken refreshToken = refreshTokenRepository
-                .findByToken(refreshTokenValue)
-                .orElseThrow(() -> new RuntimeException("Invalid refresh token"));
+        RefreshToken refreshToken = validateRefreshToken(refreshTokenValue);
 
-        if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
-            throw new RuntimeException("Refresh token expired");
-        }
+        String username = refreshToken.getUsername();
 
-        String username = refreshToken.getUsername(); // DB-backed user
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + username)
+                );
+
         return jwtUtil.generateToken(user);
     }
-
-
 }

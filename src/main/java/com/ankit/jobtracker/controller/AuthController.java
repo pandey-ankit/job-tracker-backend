@@ -5,17 +5,16 @@ import com.ankit.jobtracker.dto.LoginResponse;
 import com.ankit.jobtracker.dto.RefreshTokenRequest;
 import com.ankit.jobtracker.entity.RefreshToken;
 import com.ankit.jobtracker.entity.User;
+import com.ankit.jobtracker.repository.UserRepository;
+import com.ankit.jobtracker.security.JwtUtil;
 import com.ankit.jobtracker.security.RefreshTokenService;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.*;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
-import com.ankit.jobtracker.security.JwtUtil;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -24,54 +23,59 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenService refreshTokenService;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, RefreshTokenService refreshTokenService) {
+    public AuthController(
+            AuthenticationManager authenticationManager,
+            JwtUtil jwtUtil,
+            RefreshTokenService refreshTokenService,
+            UserRepository userRepository
+    ) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
         this.refreshTokenService = refreshTokenService;
+        this.userRepository = userRepository;
     }
 
-        @SuppressWarnings("unchecked")
-        @PostMapping("/login")
-        public LoginResponse login(@RequestBody LoginRequest request) {
+    @PostMapping("/login")
+    public LoginResponse login(@RequestBody LoginRequest request) {
 
+        // 1️⃣ Authenticate (Spring Security)
         Authentication authentication = authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
-                    request.getUsername(),
-                    request.getPassword()
-            )
+                new UsernamePasswordAuthenticationToken(
+                        request.getUsername(),
+                        request.getPassword()
+                )
         );
-       
-        User user = (User) authentication.getPrincipal();
-        List<String> roles = (List<String>) user.getRoles();
 
+        // 2️⃣ Load YOUR User entity from DB
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 3️⃣ Generate access token from DB User
         String accessToken = jwtUtil.generateToken(user);
-        RefreshToken refreshToken = refreshTokenService.createRefreshToken(authentication.getName());
+
+        // 4️⃣ Generate refresh token
+        RefreshToken refreshToken =
+                refreshTokenService.createRefreshToken(user.getUsername());
 
         return new LoginResponse(
-            accessToken,
-            refreshToken.getToken(),
-            "Bearer",
-            authentication.getName(),
-            roles
+                accessToken,
+                refreshToken.getToken(),
+                "Bearer",
+                user.getUsername(),
+                List.copyOf(user.getRoles())
         );
-        }
+    }
 
-        @PostMapping("/refresh")
-        public String refresh(@RequestBody RefreshTokenRequest request) {
-        String accessToken = refreshTokenService.refreshAccessToken(request.getRefreshToken());
-        return accessToken;
-        }
+    @PostMapping("/refresh")
+    public String refresh(@RequestBody RefreshTokenRequest request) {
+        return refreshTokenService.refreshAccessToken(request.getRefreshToken());
+    }
 
-
-        @PostMapping("/logout")
-        public String logout(@RequestBody RefreshTokenRequest request) {
-        System.out.println(">>> HIT /auth/logout with token = " + request.getRefreshToken());
+    @PostMapping("/logout")
+    public String logout(@RequestBody RefreshTokenRequest request) {
         refreshTokenService.revokeToken(request.getRefreshToken());
         return "Logged out successfully";
-        }
-
-
-
-
+    }
 }

@@ -25,11 +25,16 @@ public class JwtUtil {
         this.expiration = expiration;
     }
 
-    // ✅ Used during login
+    // ✅ Used during login (DB User)
     public String generateToken(User user) {
+
+        List<String> roles = user.getRoles().stream()
+                .map(role -> role.startsWith("ROLE_") ? role : "ROLE_" + role)
+                .toList();
+
         return Jwts.builder()
                 .setSubject(user.getUsername())
-                .claim("roles", user.getRoles())
+                .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -46,7 +51,16 @@ public class JwtUtil {
         return (List<String>) extractAllClaims(token).get("roles");
     }
 
-    // ✅ THIS is what Spring Security expects
+    // ✅ NEW: Stateless validation (used by filter)
+    public boolean validateToken(String token) {
+        try {
+            return !isTokenExpired(token);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    // ✅ Kept for backward compatibility (login / tests)
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
