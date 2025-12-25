@@ -3,6 +3,7 @@ package com.ankit.jobtracker.security;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
@@ -22,6 +23,7 @@ public class JwtUtil {
         this.expiration = expiration;
     }
 
+    // ✅ Used during login
     public String generateToken(String username, List<String> roles) {
         return Jwts.builder()
                 .setSubject(username)
@@ -32,29 +34,37 @@ public class JwtUtil {
                 .compact();
     }
 
+    // ✅ Used by JwtAuthFilter
     public String extractUsername(String token) {
-        return parseClaims(token).getSubject();
+        return extractAllClaims(token).getSubject();
     }
 
     @SuppressWarnings("unchecked")
     public List<String> extractRoles(String token) {
-        return (List<String>) parseClaims(token).get("roles");
+        return (List<String>) extractAllClaims(token).get("roles");
     }
 
-    public boolean isTokenValid(String token) {
+    // ✅ THIS is what Spring Security expects
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
+    }
+
+    // ---------------- PRIVATE HELPERS ----------------
+
+    private boolean isTokenExpired(String token) {
+        return extractAllClaims(token).getExpiration().before(new Date());
+    }
+
+    private Claims extractAllClaims(String token) {
         try {
-            parseClaims(token);
-            return true;
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
         } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            throw new RuntimeException("Invalid JWT token", e);
         }
-    }
-
-    private Claims parseClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
     }
 }
