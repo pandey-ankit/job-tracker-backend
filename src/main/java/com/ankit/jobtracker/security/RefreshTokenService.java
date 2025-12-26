@@ -6,6 +6,8 @@ import com.ankit.jobtracker.exception.InvalidRefreshTokenException;
 import com.ankit.jobtracker.repository.RefreshTokenRepository;
 import com.ankit.jobtracker.repository.UserRepository;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -80,4 +82,11 @@ public class RefreshTokenService {
 
         return jwtUtil.generateToken(user);
     }
+
+    @Transactional
+    public void deleteAllTokensForUser(String username) {
+        refreshTokenRepository.deleteByUsername(username);
+        System.out.println(">>> Deleted all refresh tokens for user: " + username);
+    }
+
 }

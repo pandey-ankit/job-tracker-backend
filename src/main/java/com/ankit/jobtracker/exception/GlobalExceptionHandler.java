@@ -14,6 +14,21 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+        @ExceptionHandler(org.springframework.security.authentication.BadCredentialsException.class)
+        public ResponseEntity<ApiError> handleBadCredentials(
+                org.springframework.security.authentication.BadCredentialsException ex,
+                HttpServletRequest request
+        ) {
+        ApiError error = new ApiError(
+                HttpStatus.UNAUTHORIZED.value(),
+                "Unauthorized",
+                "Invalid username or password",
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+        }
+
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleNotFound(
             ResourceNotFoundException ex,
@@ -80,6 +95,21 @@ public ResponseEntity<ApiError> handleValidation(
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
         }
 
+
+        @ExceptionHandler(InvalidJobStatusTransitionException.class)
+        public ResponseEntity<ApiError> handleInvalidStatusTransition(
+                InvalidJobStatusTransitionException ex,
+                HttpServletRequest request
+        ) {
+        ApiError error = new ApiError(
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getRequestURI()
+        );
+
+        return ResponseEntity.badRequest().body(error);
+        }
 
 
         @ExceptionHandler(Exception.class)

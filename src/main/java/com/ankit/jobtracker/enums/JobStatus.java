@@ -1,8 +1,11 @@
 package com.ankit.jobtracker.enums;
 
 public enum JobStatus {
+    CREATED,
     APPLIED,
-    INTERVIEW,
-    OFFER,
-    REJECTED
+    INTERVIEWING,
+    OFFERED,
+    ACCEPTED,
+    REJECTED,
+    WITHDRAWN
 }

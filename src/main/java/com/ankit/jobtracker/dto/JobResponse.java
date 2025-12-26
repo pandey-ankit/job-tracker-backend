@@ -1,5 +1,6 @@
 package com.ankit.jobtracker.dto;
 
+import com.ankit.jobtracker.enums.JobStatus;
 import java.time.Instant;
 
 public class JobResponse {
@@ -9,19 +10,22 @@ public class JobResponse {
     private String description;
     private String location;
     private Instant createdAt;
+    private JobStatus status;
 
     public JobResponse(
             Long id,
             String title,
             String description,
             String location,
-            Instant createdAt
+            Instant createdAt,
+            JobStatus status
     ) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.location = location;
         this.createdAt = createdAt;
+        this.status = status;
     }
 
     public Long getId() {
@@ -42,5 +46,9 @@ public class JobResponse {
 
     public Instant getCreatedAt() {
         return createdAt;
+    }
+
+    public JobStatus getStatus() {
+        return status;
     }
 }

@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import com.ankit.jobtracker.security.JwtUtil;
 
 import java.io.IOException;
-import java.util.List;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -27,53 +26,52 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
 
     @Override
-protected void doFilterInternal(
-        HttpServletRequest request,
-        HttpServletResponse response,
-        FilterChain filterChain
-) throws ServletException, IOException {
+    protected void doFilterInternal(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain filterChain
+    ) throws ServletException, IOException {
 
-    // ✅ IMPORTANT: Skip JWT filter for auth endpoints
-    String path = request.getServletPath();
-    if (path.startsWith("/auth/")) {
+        String path = request.getServletPath();
+
+        // ✅ Skip JWT ONLY for login & refresh
+        if (path.equals("/auth/login") || path.equals("/auth/refresh")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        String token = authHeader.substring(7);
+        String username = jwtUtil.extractUsername(token);
+
+        if (username != null &&
+            SecurityContextHolder.getContext().getAuthentication() == null &&
+            jwtUtil.validateToken(token)) {
+
+            var authorities = jwtUtil.extractRoles(token).stream()
+                    .map(SimpleGrantedAuthority::new)
+                    .toList();
+
+            UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                            username,
+                            null,
+                            authorities
+                    );
+
+            authentication.setDetails(
+                    new WebAuthenticationDetailsSource().buildDetails(request)
+            );
+
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+
         filterChain.doFilter(request, response);
-        return;
     }
-
-    String authHeader = request.getHeader("Authorization");
-
-    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        filterChain.doFilter(request, response);
-        return;
-    }
-
-    String token = authHeader.substring(7);
-
-    String username = jwtUtil.extractUsername(token);
-
-    if (username != null &&
-        SecurityContextHolder.getContext().getAuthentication() == null &&
-        jwtUtil.validateToken(token)) {
-
-        var authorities = jwtUtil.extractRoles(token).stream()
-                .map(SimpleGrantedAuthority::new)
-                .toList();
-
-        UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                        username,
-                        null,
-                        authorities
-                );
-
-        authentication.setDetails(
-                new WebAuthenticationDetailsSource().buildDetails(request)
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
-
-    filterChain.doFilter(request, response);
-    }
-
 }

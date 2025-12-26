@@ -21,6 +21,6 @@ public class JobSecurity {
 
         String username = authentication.getName();
 
-        return jobRepository.existsByIdAndOwnerUsername(jobId, username);
+        return jobRepository.existsByIdAndOwnerUsername_Username(jobId, username);
     }
 }

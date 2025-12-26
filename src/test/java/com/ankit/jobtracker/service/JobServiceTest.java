@@ -2,6 +2,8 @@ package com.ankit.jobtracker.service;
 
 import com.ankit.jobtracker.entity.Job;
 import com.ankit.jobtracker.repository.JobRepository;
+import com.ankit.jobtracker.repository.UserRepository;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
@@ -19,7 +21,8 @@ import static org.mockito.Mockito.*;
 class JobServiceTest {
 
     private final JobRepository jobRepository = mock(JobRepository.class);
-    private final JobService jobService = new JobService(jobRepository);
+    private final UserRepository userRepository = mock(UserRepository.class);
+    private final JobService jobService = new JobService(jobRepository, userRepository);
 
     @Test
     void userShouldSeeOnlyOwnJobs() {
@@ -37,13 +40,13 @@ class JobServiceTest {
 
         Page<Job> page = new PageImpl<>(List.of(job));
 
-        when(jobRepository.findByOwnerUsername(eq("user1"), any(Pageable.class)))
+        when(jobRepository.findByOwnerUsername_Username(eq("user1"), any(Pageable.class)))
                 .thenReturn(page);
 
         Page<?> result = jobService.listJobs(authentication, PageRequest.of(0, 5));
 
         assertThat(result.getContent()).hasSize(1);
-        verify(jobRepository).findByOwnerUsername(eq("user1"), any(Pageable.class));
+        verify(jobRepository).findByOwnerUsername_Username(eq("user1"), any(Pageable.class));
         verify(jobRepository, never()).findAll(any(Pageable.class));
     }
 
@@ -69,6 +72,6 @@ class JobServiceTest {
 
         assertThat(result.getContent()).hasSize(1);
         verify(jobRepository).findAll(any(Pageable.class));
-        verify(jobRepository, never()).findByOwnerUsername(any(), any());
+        verify(jobRepository, never()).findByOwnerUsername_Username(any(), any());
     }
 }

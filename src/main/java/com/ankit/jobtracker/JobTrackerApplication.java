@@ -24,7 +24,7 @@ public class JobTrackerApplication {
     @Bean
     CommandLineRunner generateAdminPassword(PasswordEncoder passwordEncoder) {
         return args -> {
-            String rawPassword = "admin123";
+            String rawPassword = "user123";
             String encodedPassword = passwordEncoder.encode(rawPassword);
 
             System.out.println("======================================");

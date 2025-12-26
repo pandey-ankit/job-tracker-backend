@@ -9,9 +9,12 @@ import com.ankit.jobtracker.repository.UserRepository;
 import com.ankit.jobtracker.security.JwtUtil;
 import com.ankit.jobtracker.security.RefreshTokenService;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -69,13 +72,44 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public String refresh(@RequestBody RefreshTokenRequest request) {
-        return refreshTokenService.refreshAccessToken(request.getRefreshToken());
+    public LoginResponse refresh(@RequestBody RefreshTokenRequest request) {
+
+        String accessToken =
+                refreshTokenService.refreshAccessToken(request.getRefreshToken());
+
+        return new LoginResponse(
+                accessToken,
+                request.getRefreshToken(),
+                "Bearer",
+                null,
+                null
+        );
     }
 
+
     @PostMapping("/logout")
-    public String logout(@RequestBody RefreshTokenRequest request) {
+    public ResponseEntity<Void> logout(@RequestBody RefreshTokenRequest request) {
         refreshTokenService.revokeToken(request.getRefreshToken());
-        return "Logged out successfully";
+        return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/logout-all")
+    public ResponseEntity<Void> logoutAll() {
+
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        String username = authentication.getName();
+
+        refreshTokenService.deleteAllTokensForUser(username);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
+
 }

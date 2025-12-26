@@ -38,7 +38,14 @@ public class SecurityConfig {
                 )
             )
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/actuator/health").permitAll()
+                // ✅ PUBLIC endpoints only
+                .requestMatchers("/auth/login", "/auth/refresh").permitAll()
+                .requestMatchers("/actuator/health").permitAll()
+
+                // ✅ MUST be authenticated
+                .requestMatchers("/auth/logout-all").authenticated()
+
+                // ✅ Everything else secured
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -46,7 +53,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // 🔑 REQUIRED for AuthController
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration config
@@ -54,7 +60,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // 🔑 REQUIRED for User registration / login
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
