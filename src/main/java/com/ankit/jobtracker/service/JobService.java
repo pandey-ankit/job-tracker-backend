@@ -91,7 +91,7 @@ public class JobService {
     /**
      * UPDATE JOB (metadata only)
      */
-    public Job updateJob(Long id, Job updatedJob) {
+    public JobResponse updateJob(Long id, Job updatedJob) {
 
         Job existing = getJobById(id);
 
@@ -99,7 +99,8 @@ public class JobService {
         existing.setDescription(updatedJob.getDescription());
         existing.setLocation(updatedJob.getLocation());
 
-        return jobRepository.save(existing);
+        jobRepository.save(existing);
+        return toResponse(existing);
     }
 
     /**

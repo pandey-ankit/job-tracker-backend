@@ -67,7 +67,7 @@ public class JobController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @jobSecurity.isOwner(#id, authentication)")
-    public Job updateJob(@PathVariable Long id, @RequestBody Job job) {
+    public JobResponse updateJob(@PathVariable Long id, @RequestBody Job job) {
         return jobService.updateJob(id, job);
     }
 
